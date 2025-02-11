@@ -63,11 +63,6 @@ namespace APISkola24.Controllers
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
             return NoContent();
         }
