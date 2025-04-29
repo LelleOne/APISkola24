@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APISkola24.Model;
+using GetTimeTableClass.APICall;
+using Microsoft.AspNetCore.Cors;
 
 namespace APISkola24.Controllers
 {
@@ -24,9 +26,7 @@ namespace APISkola24.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
         {
-            return await _context.TodoItems
-                .Select(x => ItemToDTO(x))
-                .ToListAsync();
+            return await _context.TodoItems.Select(x => ItemToDTO(x)).ToListAsync();
         }
 
         // GET: api/TodoItems/5
@@ -93,10 +93,21 @@ namespace APISkola24.Controllers
             _context.TodoItems.Add(todoItem);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(
-                nameof(GetTodoItem),
-                new { id = todoItem.Id },
-                ItemToDTO(todoItem));
+            return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, ItemToDTO(todoItem));
+        }
+
+        [HttpGet("FetchTimeTable")]
+        public async Task<ActionResult<IEnumerable<TodoItemDTO>>> FetchTimeTable()
+        {
+            try
+            {
+                string timeTableJson = await GetTimeTable.FetchAll();
+                return Content(timeTableJson, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
         // </snippet_Create>
 
